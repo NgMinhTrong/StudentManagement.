@@ -1,15 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
+using ConnectDB.DTOs; // Thêm dòng này
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đăng ký kết nối SQL Server vào hệ thống
+// Đăng ký kết nối SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Bỏ qua vòng lặp vô hạn khi serialize
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Tùy chỉnh Swagger để hiểu DTO
+    c.UseInlineDefinitionsForEnums();
+});
 
 var app = builder.Build();
 
@@ -24,13 +35,4 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-//test các bảng Class, Teacher, User,... vừa tạo ra
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    DbInitializer.Initialize(dbContext);
-}
-
 app.Run();
-//success 
