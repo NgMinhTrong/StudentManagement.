@@ -24,5 +24,13 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
+//test các bảng Class, Teacher, User,... vừa tạo ra
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DbInitializer.Initialize(dbContext);
+}
+
 app.Run();
 //success 
