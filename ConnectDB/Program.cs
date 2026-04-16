@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 using ConnectDB.DTOs; // Thêm dòng này
 
@@ -14,6 +14,18 @@ builder.Services.AddControllers()
         // Bỏ qua vòng lặp vô hạn khi serialize
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
+
+// Cấu hình CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173", "http://localhost:3000") // Thêm port của Vite/React
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -32,6 +44,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowReactApp");
+
 app.UseAuthorization();
 app.MapControllers();
 
