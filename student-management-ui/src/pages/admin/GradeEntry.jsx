@@ -35,18 +35,24 @@ const GradeEntry = () => {
     // Load Teacher's assigned classes and subjects
     const fetchData = async () => {
       try {
-        const [classesRes, subjectsRes] = await Promise.all([
-          api.get('/Classes'),
-          api.get('/Subjects')
-        ]);
-        setClasses(classesRes.data);
-        setSubjects(subjectsRes.data);
+        const res = await api.get(`/TeachingAssignments/teacher/${user.teacherId}`);
+        const assignments = res.data;
+        
+        // Trích xuất danh sách lớp và môn học duy nhất từ phân công
+        const uniqueClasses = Array.from(new Set(assignments.map(a => a.classId)))
+          .map(id => ({ id, className: assignments.find(a => a.classId === id).className }));
+          
+        const uniqueSubjects = Array.from(new Set(assignments.map(a => a.subjectId)))
+          .map(id => ({ id, subjectName: assignments.find(a => a.subjectId === id).subjectName }));
+
+        setClasses(uniqueClasses);
+        setSubjects(uniqueSubjects);
       } catch (err) {
-        message.error('Không thể tải danh sách lớp/môn học');
+        message.error('Không thể tải danh sách phân công của giáo viên');
       }
     };
     fetchData();
-  }, []);
+  }, [user.teacherId]);
 
   const handleSearch = async () => {
     if (!selectedClass || !selectedSubject) {

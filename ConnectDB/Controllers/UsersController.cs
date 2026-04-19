@@ -6,10 +6,13 @@ using ConnectDB.DTOs;
 using ConnectDB.DTOs;
 using static BCrypt.Net.BCrypt;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ConnectDB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;

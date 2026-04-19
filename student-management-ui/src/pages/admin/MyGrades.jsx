@@ -16,7 +16,7 @@ const MyGrades = () => {
   const fetchMyGrades = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/Scores/student/${user.id}`);
+      const res = await api.get(`/Scores/student/${user.studentId}`);
       setScores(res.data);
     } catch (err) {
       console.error('Lỗi khi tải điểm', err);
@@ -27,7 +27,7 @@ const MyGrades = () => {
 
   useEffect(() => {
     fetchMyGrades();
-  }, [user.id]);
+  }, [user.studentId]);
 
   const filteredScores = semester === 'All' 
     ? scores 

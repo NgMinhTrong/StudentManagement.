@@ -46,8 +46,8 @@ const StudentDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const [sumRes, chartRes] = await Promise.all([
-          api.get(`/StudentDashboard/summary/${user.id}`),
-          api.get(`/StudentDashboard/performance-chart/${user.id}`)
+          api.get(`/StudentDashboard/summary/${user.studentId}`),
+          api.get(`/StudentDashboard/performance-chart/${user.studentId}`)
         ]);
         setSummary(sumRes.data);
         setChartData(chartRes.data);
@@ -58,7 +58,7 @@ const StudentDashboard = () => {
       }
     };
     fetchDashboardData();
-  }, [user.id]);
+  }, [user.studentId]);
 
   return (
     <div className="animate-in fade-in duration-500">

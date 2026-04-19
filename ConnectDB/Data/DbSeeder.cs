@@ -24,24 +24,17 @@ namespace ConnectDB.Data
             var studentRole = await context.Roles.FirstAsync(r => r.RoleName == "Student");
 
             // 2. Users & UserRoles
-            if (context.Users.Count() < 5)
+            if (!context.Users.Any(u => u.Username == "nhuquynh"))
             {
                 var users = new List<User>();
                 // Add Admin
-                users.Add(new User { Username = "admin", PasswordHash = HashPassword("admin123"), FullName = "Quản trị viên", Email = "admin@system.com" });
+                users.Add(new User { Username = "nhuquynh", PasswordHash = HashPassword("123"), FullName = "Nguyễn Như Quỳnh (Admin)", Email = "quynh@admin.com", IsActive = true });
                 
-                // Add 5 Teachers
-                for (int i = 1; i <= 5; i++)
-                {
-                    users.Add(new User { Username = $"teacher{i}", PasswordHash = HashPassword("123456"), FullName = $"Giáo viên {i}", Email = $"teacher{i}@school.edu.vn" });
-                }
+                // Add Teacher
+                users.Add(new User { Username = "gv_truc", PasswordHash = HashPassword("123"), FullName = "Lê Thanh Trúc (Teacher)", Email = "truc@teacher.com", IsActive = true });
 
-                // Add 15 Students
-                string[] studentNames = { "Nguyễn Văn An", "Trần Thị Bình", "Lê Văn Cường", "Phạm Minh Đức", "Hoàng Kim Liên", "Vũ Huy Hoàng", "Đỗ Bảo Ngọc", "Ngô Thành Nam", "Bùi Hồng Hạnh", "Lý Thanh Tùng", "Trịnh Xuân Bắc", "Đinh Tuyết Mai", "Quách Công Minh", "Lương Thu Trang", "Hồ Mạnh Hùng" };
-                for (int i = 0; i < studentNames.Length; i++)
-                {
-                    users.Add(new User { Username = $"student{i+1}", PasswordHash = HashPassword("123456"), FullName = studentNames[i], Email = $"student{i+1}@st.school.edu.vn" });
-                }
+                // Add Student
+                users.Add(new User { Username = "hs_van", PasswordHash = HashPassword("123"), FullName = "Trần Thanh Vân (Student)", Email = "van@student.com", IsActive = true });
 
                 context.Users.AddRange(users);
                 await context.SaveChangesAsync();
@@ -49,9 +42,9 @@ namespace ConnectDB.Data
                 // Assign Roles
                 foreach (var u in users)
                 {
-                    if (u.Username == "admin") 
+                    if (u.Username == "nhuquynh") 
                         context.UserRoles.Add(new UserRole { UserId = u.Id, RoleId = adminRole.Id });
-                    else if (u.Username.StartsWith("teacher"))
+                    else if (u.Username == "gv_truc")
                         context.UserRoles.Add(new UserRole { UserId = u.Id, RoleId = teacherRole.Id });
                     else
                         context.UserRoles.Add(new UserRole { UserId = u.Id, RoleId = studentRole.Id });

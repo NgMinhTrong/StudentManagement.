@@ -14,6 +14,7 @@ import {
   SafetyOutlined
 } from '@ant-design/icons';
 import api from '../../api/axios';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
@@ -27,7 +28,8 @@ const Dashboard = () => {
     totalScores: 0,
     totalAssignments: 0,
     totalNotifications: 0,
-    totalRoles: 0
+    totalRoles: 0,
+    recentActivities: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -45,16 +47,18 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
+  const navigate = useNavigate();
+
   const statCards = [
-    { title: 'Sinh viên', value: stats.totalStudents, icon: <TeamOutlined />, color: '#1890ff' },
-    { title: 'Giáo viên', value: stats.totalTeachers, icon: <UserOutlined />, color: '#722ed1' },
-    { title: 'Lớp học', value: stats.totalClasses, icon: <BookOutlined />, color: '#fa8c16' },
-    { title: 'Môn học', value: stats.totalSubjects, icon: <ReadOutlined />, color: '#13c2c2' },
-    { title: 'Người dùng', value: stats.totalUsers, icon: <UserSwitchOutlined />, color: '#eb2f96' },
-    { title: 'Bài kiểm tra/Điểm', value: stats.totalScores, icon: <FileTextOutlined />, color: '#52c41a' },
-    { title: 'Phân công', value: stats.totalAssignments, icon: <CalendarOutlined />, color: '#2f54eb' },
-    { title: 'Thông báo', value: stats.totalNotifications, icon: <BellOutlined />, color: '#fadb14' },
-    { title: 'Vai trò/Quyền', value: stats.totalRoles, icon: <SafetyOutlined />, color: '#fa541c' },
+    { title: 'Sinh viên', value: stats.totalStudents, icon: <TeamOutlined />, color: '#1890ff', link: '/admin/students' },
+    { title: 'Giáo viên', value: stats.totalTeachers, icon: <UserOutlined />, color: '#722ed1', link: '/admin/teachers' },
+    { title: 'Lớp học', value: stats.totalClasses, icon: <BookOutlined />, color: '#fa8c16', link: '/admin/classes' },
+    { title: 'Môn học', value: stats.totalSubjects, icon: <ReadOutlined />, color: '#13c2c2', link: '/admin/subjects' },
+    { title: 'Người dùng', value: stats.totalUsers, icon: <UserSwitchOutlined />, color: '#eb2f96', link: '/admin/users' },
+    { title: 'Bài kiểm tra/Điểm', value: stats.totalScores, icon: <FileTextOutlined />, color: '#52c41a', link: '/admin/scores' },
+    { title: 'Phân công', value: stats.totalAssignments, icon: <CalendarOutlined />, color: '#2f54eb', link: '/admin/teaching-assignments' },
+    { title: 'Thông báo', value: stats.totalNotifications, icon: <BellOutlined />, color: '#fadb14', link: '#' },
+    { title: 'Vai trò/Quyền', value: stats.totalRoles, icon: <SafetyOutlined />, color: '#fa541c', link: '#' },
   ];
 
   return (
@@ -69,11 +73,16 @@ const Dashboard = () => {
         
         {statCards.map((c, i) => (
           <Col xs={24} sm={12} md={8} lg={6} key={i}>
-            <Card variant="borderless" hoverable>
+            <Card 
+              variant="borderless" 
+              hoverable 
+              onClick={() => c.link !== '#' && navigate(c.link)}
+              style={{ cursor: c.link !== '#' ? 'pointer' : 'default' }}
+            >
               <Statistic
                 title={c.title}
                 value={c.value}
-                valueStyle={{ color: c.color, fontWeight: 'bold' }}
+                styles={{ content: { color: c.color, fontWeight: 'bold' } }}
                 prefix={c.icon}
                 suffix={<ArrowUpOutlined style={{ fontSize: 12, marginLeft: 8 }} />}
               />
@@ -88,11 +97,7 @@ const Dashboard = () => {
           <Card title="Giao dịch/Hoạt động gần đây" variant="borderless" extra={<a href="#">Xem tất cả</a>}>
             <List
               itemLayout="horizontal"
-              dataSource={[
-                { title: 'Cập nhật điểm môn Toán', desc: 'GV Lê Văn Tú vừa cập nhật điểm cho lớp 10A1', time: '5 phút trước' },
-                { title: 'Thêm tài khoản mới', desc: 'Admin vừa cấp tài khoản cho sinh viên mới Trần Văn An', time: '1 giờ trước' },
-                { title: 'Phân công giảng dạy', desc: 'Môn Hóa học đã được phân công cho cô Lan', time: '2 giờ trước' },
-              ]}
+              dataSource={stats.recentActivities}
               renderItem={(item) => (
                 <List.Item>
                   <List.Item.Meta

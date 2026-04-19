@@ -2,10 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ConnectDB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class DashboardController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -28,6 +31,30 @@ namespace ConnectDB.Controllers
             var notificationCount = await _context.Notifications.CountAsync();
             var roleCount = await _context.Roles.CountAsync();
 
+            var recentStudents = await _context.Students
+                .OrderByDescending(s => s.Id)
+                .Take(2)
+                .Select(s => new { 
+                    Title = "Sinh viên mới", 
+                    Desc = $"Sinh viên {s.FullName} vừa được thêm vào hệ thống", 
+                    Time = "Vừa xong" 
+                })
+                .ToListAsync();
+
+            var recentScores = await _context.Scores
+                .OrderByDescending(s => s.Id)
+                .Take(3)
+                .Select(s => new { 
+                    Title = "Cập nhật điểm", 
+                    Desc = $"Điểm môn {s.Subject.SubjectName} của học sinh {s.Student.FullName} vừa được cập nhật", 
+                    Time = "Gần đây" 
+                })
+                .ToListAsync();
+
+            var activities = new List<object>();
+            activities.AddRange(recentStudents);
+            activities.AddRange(recentScores);
+
             return Ok(new
             {
                 totalStudents = studentCount,
@@ -38,7 +65,8 @@ namespace ConnectDB.Controllers
                 totalScores = scoreCount,
                 totalAssignments = assignmentCount,
                 totalNotifications = notificationCount,
-                totalRoles = roleCount
+                totalRoles = roleCount,
+                recentActivities = activities
             });
         }
     }

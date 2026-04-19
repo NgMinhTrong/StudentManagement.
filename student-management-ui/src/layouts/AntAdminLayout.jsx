@@ -31,9 +31,14 @@ const { Text } = Typography;
 
 const AntAdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const { user, switchRole } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const onLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const getMenuItems = () => {
     const items = [
@@ -118,20 +123,14 @@ const AntAdminLayout = () => {
     ];
 
     return items
-      .filter(item => item.roles.includes(user.role))
+      .filter(item => item.roles.some(role => 
+        user.roles.some(userRole => userRole.toUpperCase() === role.toUpperCase())
+      ))
       .map(({ roles: _roles, ...rest }) => rest);
   };
 
-  const roleMenu = (
-    <Menu
-      onClick={({ key }) => switchRole(key)}
-      items={[
-        { key: 'ADMIN', label: 'Vai trò: Admin' },
-        { key: 'TEACHER', label: 'Vai trò: Giáo viên' },
-        { key: 'STUDENT', label: 'Vai trò: Học sinh' },
-      ]}
-    />
-  );
+  // Role display logic
+  const primaryRole = user.roles[0];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -194,18 +193,20 @@ const AntAdminLayout = () => {
           />
           
           <Space size={24}>
-            <Dropdown overlay={roleMenu} placement="bottomRight">
-              <Button icon={<SwapOutlined />} type="dashed">
-                Chuyển vai trò <Tag color="blue" style={{ marginLeft: 8 }}>{user.role}</Tag>
-              </Button>
-            </Dropdown>
+            <Tag color="blue" style={{ margin: 0 }}>{primaryRole}</Tag>
 
-            <Dropdown menu={{ items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' }] }} placement="bottomRight">
+            <Dropdown 
+              menu={{ 
+                items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' }],
+                onClick: onLogout
+              }} 
+              placement="bottomRight"
+            >
               <Space style={{ cursor: 'pointer' }}>
                 <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
                   <Text strong>{user.fullName}</Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>{user.role}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{primaryRole}</Text>
                 </div>
               </Space>
             </Dropdown>

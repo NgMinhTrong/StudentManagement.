@@ -4,10 +4,13 @@ using ConnectDB.Data;
 using ConnectDB.Models;
 using ConnectDB.DTOs;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ConnectDB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ScoresController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -98,6 +101,7 @@ namespace ConnectDB.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Teacher")]
         public async Task<ActionResult<Score>> PostScore(ScoreCreateDto scoreDto)
         {
             var score = new Score
@@ -129,6 +133,7 @@ namespace ConnectDB.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Teacher")]
         public async Task<IActionResult> PutScore(int id, ScoreCreateDto scoreDto)
         {
             var score = await _context.Scores.FindAsync(id);

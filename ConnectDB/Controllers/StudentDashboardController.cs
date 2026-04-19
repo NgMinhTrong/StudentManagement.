@@ -3,10 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 using ConnectDB.Models;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ConnectDB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StudentDashboardController : ControllerBase
     {
         private readonly AppDbContext _context;

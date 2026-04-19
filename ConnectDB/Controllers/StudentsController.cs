@@ -4,10 +4,13 @@ using ConnectDB.Data;
 using ConnectDB.Models;
 using ConnectDB.DTOs;  
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ConnectDB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StudentsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -69,6 +72,7 @@ namespace ConnectDB.Controllers
 
         // POST: api/Students
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<StudentResponseDto>> PostStudent(StudentCreateDto studentDto)
         {
             // Kiểm tra User có tồn tại không và có role Student hay không
@@ -149,6 +153,7 @@ namespace ConnectDB.Controllers
 
         // PUT: api/Students/5 (Cập nhật)
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutStudent(int id, StudentCreateDto studentDto)
         {
             var student = await _context.Students.FindAsync(id);
@@ -199,6 +204,7 @@ namespace ConnectDB.Controllers
 
         // DELETE: api/Students/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
             var student = await _context.Students.FindAsync(id);

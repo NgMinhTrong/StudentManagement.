@@ -4,10 +4,13 @@ using ConnectDB.Data;
 using ConnectDB.Models;
 using ConnectDB.DTOs;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ConnectDB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TeachersController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -59,6 +62,7 @@ namespace ConnectDB.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<TeacherResponseDto>> PostTeacher(TeacherCreateDto teacherDto)
         {
             var teacher = new Teacher
@@ -76,6 +80,7 @@ namespace ConnectDB.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutTeacher(int id, TeacherCreateDto teacherDto)
         {
             var teacher = await _context.Teachers.FindAsync(id);
@@ -93,6 +98,7 @@ namespace ConnectDB.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTeacher(int id)
         {
             var teacher = await _context.Teachers.FindAsync(id);
