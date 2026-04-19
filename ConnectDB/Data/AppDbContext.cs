@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ConnectDB.Models;
 
 namespace ConnectDB.Data;
@@ -17,10 +17,20 @@ public class AppDbContext : DbContext
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Teacher> Teachers { get; set; }
     public DbSet<TeachingAssignment> TeachingAssignments { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // ... existing configurations ...
+
+        // Cấu hình quan hệ 1-N giữa Student và Notification
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.Student)
+            .WithMany() // Student doesn't necessarily need a collection of notifications in the class
+            .HasForeignKey(n => n.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Cấu hình quan hệ nhiều-nhiều giữa User và Role
         modelBuilder.Entity<UserRole>()

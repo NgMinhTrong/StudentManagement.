@@ -22,13 +22,23 @@ namespace ConnectDB.Controllers
             var teacherCount = await _context.Teachers.CountAsync();
             var classCount = await _context.Classes.CountAsync();
             var subjectCount = await _context.Subjects.CountAsync();
+            var userCount = await _context.Users.CountAsync();
+            var scoreCount = await _context.Scores.CountAsync();
+            var assignmentCount = await _context.TeachingAssignments.CountAsync();
+            var notificationCount = await _context.Notifications.CountAsync();
+            var roleCount = await _context.Roles.CountAsync();
 
             return Ok(new
             {
                 totalStudents = studentCount,
                 totalTeachers = teacherCount,
                 totalClasses = classCount,
-                totalSubjects = subjectCount
+                totalSubjects = subjectCount,
+                totalUsers = userCount,
+                totalScores = scoreCount,
+                totalAssignments = assignmentCount,
+                totalNotifications = notificationCount,
+                totalRoles = roleCount
             });
         }
     }

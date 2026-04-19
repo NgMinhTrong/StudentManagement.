@@ -58,7 +58,7 @@ const UserManagement = () => {
   ];
 
   return (
-    <Card title="Quản lý Tài khoản người dùng" bordered={false}>
+    <Card title="Quản lý Tài khoản người dùng" variant="borderless">
       <Table 
         columns={columns} 
         dataSource={users} 

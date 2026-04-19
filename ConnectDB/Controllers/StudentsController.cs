@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 using ConnectDB.Models;
@@ -71,11 +71,28 @@ namespace ConnectDB.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentResponseDto>> PostStudent(StudentCreateDto studentDto)
         {
-            // Kiểm tra User có tồn tại không
-            var user = await _context.Users.FindAsync(studentDto.UserId);
+            // Kiểm tra User có tồn tại không và có role Student hay không
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.Student)
+                .FirstOrDefaultAsync(u => u.Id == studentDto.UserId);
+
             if (user == null)
             {
                 return BadRequest(new { message = $"User với Id = {studentDto.UserId} không tồn tại" });
+            }
+
+            // Kiểm tra role Student
+            if (!user.UserRoles.Any(ur => ur.Role.RoleName == "Student"))
+            {
+                return BadRequest(new { message = "User này không có vai trò Sinh viên (Student)" });
+            }
+
+            // Kiểm tra xem User đã được gán cho sinh viên nào chưa
+            if (user.Student != null)
+            {
+                return BadRequest(new { message = "User này đã được gán cho một hồ sơ sinh viên khác" });
             }
 
             // Kiểm tra Class có tồn tại không
@@ -137,11 +154,27 @@ namespace ConnectDB.Controllers
             var student = await _context.Students.FindAsync(id);
             if (student == null) return NotFound();
 
-            // Kiểm tra User tồn tại
-            var user = await _context.Users.FindAsync(studentDto.UserId);
+            // Kiểm tra User tồn tại và vai trò
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Include(u => u.Student)
+                .FirstOrDefaultAsync(u => u.Id == studentDto.UserId);
+
             if (user == null)
             {
                 return BadRequest(new { message = $"User với Id = {studentDto.UserId} không tồn tại" });
+            }
+
+            if (!user.UserRoles.Any(ur => ur.Role.RoleName == "Student"))
+            {
+                return BadRequest(new { message = "User này không có vai trò Sinh viên (Student)" });
+            }
+
+            // Nếu thay đổi UserId, kiểm tra xem UserId mới đã được gán hay chưa
+            if (student.UserId != studentDto.UserId && user.Student != null)
+            {
+                return BadRequest(new { message = "User này đã được gán cho một hồ sơ sinh viên khác" });
             }
 
             // Kiểm tra Class tồn tại

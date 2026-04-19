@@ -44,6 +44,12 @@ const AntAdminLayout = () => {
         roles: ['ADMIN'],
       },
       {
+        key: '/admin/student-dashboard',
+        icon: <DashboardOutlined />,
+        label: 'Tổng quan học tập',
+        roles: ['STUDENT'],
+      },
+      {
         key: '/admin/users',
         icon: <UserOutlined />,
         label: 'Quản lý Người dùng',
@@ -56,6 +62,12 @@ const AntAdminLayout = () => {
         roles: ['ADMIN'],
       },
       {
+        key: '/admin/profile',
+        icon: <UserOutlined />,
+        label: 'Thông tin cá nhân',
+        roles: ['STUDENT'],
+      },
+      {
         key: '/admin/teachers',
         icon: <SolutionOutlined />,
         label: 'Giáo viên',
@@ -66,6 +78,18 @@ const AntAdminLayout = () => {
         icon: <BookOutlined />,
         label: 'Lớp học & Môn học',
         roles: ['ADMIN'],
+      },
+      {
+        key: '/admin/scores',
+        icon: <SolutionOutlined />,
+        label: 'Bảng điểm',
+        roles: ['ADMIN'],
+      },
+      {
+        key: '/admin/schedule',
+        icon: <BookOutlined />,
+        label: 'Thời khóa biểu',
+        roles: ['STUDENT'],
       },
       {
         key: '/admin/teaching-assignments',
@@ -95,7 +119,7 @@ const AntAdminLayout = () => {
 
     return items
       .filter(item => item.roles.includes(user.role))
-      .map(({ roles, ...rest }) => rest);
+      .map(({ roles: _roles, ...rest }) => rest);
   };
 
   const roleMenu = (

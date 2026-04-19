@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5031/api', // Port của ASP.NET API (Cần check lại nếu port khác)
+  baseURL: 'http://localhost:5143/api', // Đã cập nhật theo launchSettings.json của bạn
   headers: {
     'Content-Type': 'application/json',
   },

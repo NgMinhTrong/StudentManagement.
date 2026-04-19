@@ -12,7 +12,7 @@ import {
   Col, 
   Tag 
 } from 'antd';
-import { SaveOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
+import { SaveOutlined, SearchOutlined, ReloadOutlined, FormOutlined } from '@ant-design/icons';
 import api from '../../api/axios';
 import { useAuth } from '../../api/AuthContext';
 
@@ -146,7 +146,7 @@ const GradeEntry = () => {
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <Card title={<Space><FormOutlined /> Nhập điểm học sinh</Space>} bordered={false}>
+      <Card title={<Space><FormOutlined /> Nhập điểm học sinh</Space>} variant="borderless">
         <Row gutter={16} align="bottom">
           <Col span={6}>
             <Text strong>Chọn Lớp:</Text>

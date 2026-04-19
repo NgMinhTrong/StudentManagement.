@@ -17,6 +17,12 @@ namespace ConnectDB.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetScores()
+        {
+            return await GetFilteredScores(null, null, null);
+        }
+
         [HttpGet("filter")]
         public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetFilteredScores(int? classId, int? subjectId, string? semester)
         {
@@ -34,7 +40,8 @@ namespace ConnectDB.Controllers
             if (!string.IsNullOrEmpty(semester))
                 query = query.Where(s => s.Semester == semester);
 
-            return await query
+            // Project directly to ScoreResponseDto to ensure EF Core translation
+            var response = await query
                 .Select(s => new ScoreResponseDto
                 {
                     Id = s.Id,
@@ -47,38 +54,25 @@ namespace ConnectDB.Controllers
                     Score15Min = s.Score15Min,
                     Score45Min = s.Score45Min,
                     ScoreFinal = s.ScoreFinal,
-                    AverageScore = s.AverageScore
+                    AverageScore = s.AverageScore,
+                    TeacherRemarks = s.TeacherRemarks,
+                    TeacherName = _context.TeachingAssignments
+                        .Where(ta => ta.ClassId == s.Student.ClassId && ta.SubjectId == s.SubjectId)
+                        .Select(ta => ta.Teacher.FullName)
+                        .FirstOrDefault() ?? "Chưa phân công"
                 })
                 .ToListAsync();
-        }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetScores()
-        {
-            return await _context.Scores
-                .Include(s => s.Student)
-                .Include(s => s.Subject)
-                .Select(s => new ScoreResponseDto
-                {
-                    Id = s.Id,
-                    StudentId = s.StudentId,
-                    StudentName = s.Student.FullName,
-                    StudentCode = s.Student.StudentCode,
-                    SubjectId = s.SubjectId,
-                    SubjectName = s.Subject.SubjectName,
-                    Semester = s.Semester,
-                    Score15Min = s.Score15Min,
-                    Score45Min = s.Score45Min,
-                    ScoreFinal = s.ScoreFinal,
-                    AverageScore = s.AverageScore
-                })
-                .ToListAsync();
+            return response;
         }
 
         [HttpGet("student/{studentId}")]
-        public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetScoresByStudent(int studentId)
+        public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetStudentScores(int studentId)
         {
-            return await _context.Scores
+            var student = await _context.Students.FindAsync(studentId);
+            if (student == null) return NotFound();
+
+            var response = await _context.Scores
                 .Include(s => s.Subject)
                 .Where(s => s.StudentId == studentId)
                 .Select(s => new ScoreResponseDto
@@ -91,13 +85,20 @@ namespace ConnectDB.Controllers
                     Score15Min = s.Score15Min,
                     Score45Min = s.Score45Min,
                     ScoreFinal = s.ScoreFinal,
-                    AverageScore = s.AverageScore
+                    AverageScore = s.AverageScore,
+                    TeacherRemarks = s.TeacherRemarks,
+                    TeacherName = _context.TeachingAssignments
+                        .Where(ta => ta.ClassId == student.ClassId && ta.SubjectId == s.SubjectId)
+                        .Select(ta => ta.Teacher.FullName)
+                        .FirstOrDefault() ?? "Chưa phân công"
                 })
                 .ToListAsync();
+
+            return response;
         }
 
         [HttpPost]
-        public async Task<ActionResult<ScoreResponseDto>> PostScore(ScoreCreateDto scoreDto)
+        public async Task<ActionResult<Score>> PostScore(ScoreCreateDto scoreDto)
         {
             var score = new Score
             {
@@ -106,13 +107,25 @@ namespace ConnectDB.Controllers
                 Semester = scoreDto.Semester,
                 Score15Min = scoreDto.Score15Min,
                 Score45Min = scoreDto.Score45Min,
-                ScoreFinal = scoreDto.ScoreFinal
+                ScoreFinal = scoreDto.ScoreFinal,
+                TeacherRemarks = scoreDto.TeacherRemarks
             };
 
             _context.Scores.Add(score);
+
+            // Create Automated Notification
+            var subject = await _context.Subjects.FindAsync(score.SubjectId);
+            _context.Notifications.Add(new Notification
+            {
+                StudentId = score.StudentId,
+                Title = "Điểm mới vừa được nhập",
+                Message = $"Môn {subject?.SubjectName} vừa có điểm mới cho học kỳ {score.Semester}.",
+                CreatedAt = DateTime.Now
+            });
+
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetScores), new { id = score.Id }, scoreDto);
+            return Ok(score);
         }
 
         [HttpPut("{id}")]
@@ -124,21 +137,18 @@ namespace ConnectDB.Controllers
             score.Score15Min = scoreDto.Score15Min;
             score.Score45Min = scoreDto.Score45Min;
             score.ScoreFinal = scoreDto.ScoreFinal;
-            score.Semester = scoreDto.Semester;
+            score.TeacherRemarks = scoreDto.TeacherRemarks;
 
-            _context.Entry(score).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            // Create Automated Notification
+            var subject = await _context.Subjects.FindAsync(score.SubjectId);
+            _context.Notifications.Add(new Notification
+            {
+                StudentId = score.StudentId,
+                Title = "Cập nhật điểm số",
+                Message = $"Điểm môn {subject?.SubjectName} đã được cập nhật.",
+                CreatedAt = DateTime.Now
+            });
 
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteScore(int id)
-        {
-            var score = await _context.Scores.FindAsync(id);
-            if (score == null) return NotFound();
-
-            _context.Scores.Remove(score);
             await _context.SaveChangesAsync();
 
             return NoContent();

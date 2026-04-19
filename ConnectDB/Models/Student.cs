@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 namespace ConnectDB.Models;
 
 public class Student
@@ -11,14 +11,13 @@ public class Student
 
     [Required]
     [StringLength(20)]
-
     public string StudentCode { get; set; } = string.Empty;
+
     [Required]
     [StringLength(100)]
-
     public string FullName { get; set; } = string.Empty;
-    public DateTime Birthday { get; set; }
 
+    public DateTime Birthday { get; set; }
 
     // Navigation properties
     public virtual Class Class { get; set; } = null!;

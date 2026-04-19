@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ConnectDB.Data;
 using ConnectDB.Models;
 using ConnectDB.DTOs;
+using ConnectDB.DTOs;
+using static BCrypt.Net.BCrypt;
 
 namespace ConnectDB.Controllers
 {
@@ -66,7 +68,7 @@ namespace ConnectDB.Controllers
             var user = new User
             {
                 Username = userDto.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password), // Giả sử dùng BCrypt
+                PasswordHash = HashPassword(userDto.Password), // Dùng static import của BCrypt.Net-Next
                 FullName = userDto.FullName,
                 Email = userDto.Email,
                 PhoneNumber = userDto.PhoneNumber,
