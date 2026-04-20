@@ -105,6 +105,6 @@ public class AppDbContext : DbContext
         // Cấu hình computed column cho AverageScore trong bảng Score
         modelBuilder.Entity<Score>()
             .Property(s => s.AverageScore)
-            .HasComputedColumnSql("(ISNULL(Score15Min,0) + ISNULL(Score45Min,0)*2 + ISNULL(ScoreFinal,0)*3) / 6");
+            .HasComputedColumnSql("(ISNULL(Score15Min, 0) * 0.15 + ISNULL(Score45Min, 0) * 0.35 + ISNULL(ScoreFinal, 0) * 0.50)");
     }
 }
