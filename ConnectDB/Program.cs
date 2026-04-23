@@ -33,7 +33,7 @@ builder.Services.AddControllers()
 
 // Cấu hình JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"] ?? "SecretKeyDefaultValue32CharsLong!!");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "SecretKeyDefaultValue32CharsLong!!");
 
 builder.Services.AddAuthentication(options =>
 {

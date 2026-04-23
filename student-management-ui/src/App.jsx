@@ -23,16 +23,16 @@ const PrivateRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return null; // Hoặc loading spinner
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Đang tải...</div>;
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (roles && !roles.some(role => 
+  // Kiểm tra quyền truy cập (Thêm kiểm tra user.roles tồn tại)
+  if (roles && (!user.roles || !roles.some(role => 
     user.roles.some(userRole => userRole.toUpperCase() === role.toUpperCase())
-  )) {
-    // Nếu có role yêu cầu mà user không có, về trang chủ admin
+  ))) {
     return <Navigate to="/admin" replace />;
   }
 
@@ -78,8 +78,6 @@ function App() {
           </Route>
 
           <Route path="/site" element={<div style={{ padding: 50 }}>Public Site Placeholder</div>} />
-          
-          {/* Catch all */}
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </Router>

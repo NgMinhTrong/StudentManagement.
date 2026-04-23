@@ -203,16 +203,17 @@ namespace ConnectDB.Controllers
         }
 
         // DELETE: api/Students/5
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteStudent(int id)
-        {
-            var student = await _context.Students.FindAsync(id);
-            if (student == null) return NotFound();
-
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteStudent(int id) {
+    try {
+        var student = await _context.Students.FindAsync(id);
+        if (student == null) return NotFound();
+        
+        _context.Students.Remove(student);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    } catch (DbUpdateException) {
+        return BadRequest(new { message = "Không thể xóa vì sinh viên này đã có dữ liệu học tập liên quan." });
     }
+}
 }
